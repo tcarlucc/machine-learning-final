@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import yfinance as yf
 
+# Source: https://github.com/neurotrader888/TechnicalAnalysisAutomation/blob/main/rolling_window.py
+
 # Checks if there is a local top detected at curr index
 def rw_top(data: np.array, curr_index: int, order: int) -> bool:
     if curr_index < order * 2 + 1:
