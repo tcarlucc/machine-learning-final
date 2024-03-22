@@ -1,3 +1,7 @@
+"""trendline_automation.py
+Originally authored by neurotrader, modified by this team to be compatible with data from yfinance.
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
