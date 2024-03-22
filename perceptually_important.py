@@ -58,12 +58,8 @@ if __name__ == "__main__":
     PIP = 10
 
     data = yf.download('MSFT', period="1y", interval='1d')
-    data.rename(columns={'Date': 'date'}, inplace=True)
-    data.rename(columns={'Open': 'open'}, inplace=True)
-    data.rename(columns={'Close': 'close'}, inplace=True)
-    data.rename(columns={'High': 'high'}, inplace=True)
-    data.rename(columns={'Low': 'low'}, inplace=True)
-    data.rename(columns={'Volume': 'volume'}, inplace=True)
+    data.columns = [x.lower() for x in data.columns]
+
 
     i = 1198
     x = data['close'].to_numpy()
