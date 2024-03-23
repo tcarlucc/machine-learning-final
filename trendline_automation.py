@@ -113,6 +113,21 @@ def optimize_slope(support: bool, pivot:int , init_slope: float, y: np.array):
     # Optimize done, return best slope and intercept
     return best_slope, -best_slope * pivot + y[pivot]
 
+def fit_upper_trendline(data: np.array):
+    x = np.arange(len(data))
+    coefs = np.polyfit(x, data, 1)
+    line_points = coefs[0] * x + coefs[1]
+    upper_pivot = (data - line_points).argmax() 
+    resist_coefs = optimize_slope(False, upper_pivot, coefs[0], data)
+    return resist_coefs 
+
+def fit_lower_trendline(data: np.array):
+    x = np.arange(len(data))
+    coefs = np.polyfit(x, data, 1)
+    line_points = coefs[0] * x + coefs[1]
+    lower_pivot = (data - line_points).argmin() 
+    support_coefs = optimize_slope(True, lower_pivot, coefs[0], data)
+
 def fit_trendlines_single(data: np.array):
     # find line of best fit (least squared) 
     # coefs[0] = slope,  coefs[1] = intercept 
