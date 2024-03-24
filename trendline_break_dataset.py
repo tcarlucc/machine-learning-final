@@ -4,7 +4,31 @@ import pandas_ta as ta
 import matplotlib.pyplot as plt
 from trendline_automation import fit_trendlines_single, fit_upper_trendline
 import mplfinance as mpf
+import yfinance as yf 
+import numpy as np
+import pandas as pd
+import pandas_ta as ta
 
+
+def atr_calc(high, low, close, lookback: int):
+    """
+    Average True Range calculator. Original file used pandas_ta's implementation of this but seems to not be working.
+    Indicates degree of price volatility, not necessarily price trends.
+    Formula can be found here: https://en.wikipedia.org/wiki/Average_true_range
+    Help from: https://stackoverflow.com/questions/40256338/calculating-average-true-range-atr-on-ohlc-data-with-python
+
+    :param high: Series of highs from dataset
+    :param low: Series of lows from dataset
+    :param close: Series of closes from dataset
+    :param lookback: How far to look back in data
+    :return: Series of average true ranges for the data
+    """
+    data['tr0'] = abs(high - low)
+    data['tr1'] = abs(high - close.shift())
+    data['tr2'] = abs(low - close.shift())
+    tr = data[['tr0', 'tr1', 'tr2']].max(axis=1)
+    result = tr.ewm(alpha=1/lookback, adjust=False).mean()  # J. Welles Wilder's Exponential Moving Average
+    return result
 
 
 def trendline_breakout_dataset(
@@ -15,13 +39,13 @@ def trendline_breakout_dataset(
     assert(atr_lookback >= lookback)
 
     close = np.log(ohlcv['close'].to_numpy())
-   
+
     # ATR for normalizing, setting stop loss take profit
-    atr = ta.atr(np.log(ohlcv['high']), np.log(ohlcv['low']), np.log(ohlcv['close']), atr_lookback)
+    atr = atr_calc(np.log(ohlcv['high']), np.log(ohlcv['low']), np.log(ohlcv['close']), atr_lookback)
     atr_arr = atr.to_numpy()
-   
+
     # Normalized volume
-    vol_arr = (ohlcv['volume'] / ohlcv['volume'].rolling(atr_lookback).median()).to_numpy() 
+    vol_arr = (ohlcv['volume'] / ohlcv['volume'].rolling(atr_lookback).median()).to_numpy()
     adx = ta.adx(ohlcv['high'], ohlcv['low'], ohlcv['close'], lookback)
     adx_arr = adx['ADX_' + str(lookback)].to_numpy()
 
@@ -100,10 +124,23 @@ def trendline_breakout_dataset(
     return trades, data_x, data_y
 
 if __name__ == '__main__':
-    data = pd.read_csv('BTCUSDT3600.csv')
+    """data = pd.read_csv('BTCUSDT3600.csv')
     data['date'] = data['date'].astype('datetime64[s]')
     data = data.set_index('date')
-    data = data.dropna()
+    data = data.dropna()"""
+
+    data = yf.download('AAPL', period="1y", interval='1h')
+    data.rename(columns={'Open': 'open'}, inplace=True)
+    data.rename(columns={'Adj Close': 'close'}, inplace=True)
+    data.rename(columns={'High': 'high'}, inplace=True)
+    data.rename(columns={'Low': 'low'}, inplace=True)
+    data.rename(columns={'Volume': 'volume'}, inplace=True)
+
+    print(data['high'])
+    # print(ta.atr(np.log(data['high']), np.log(data['low']), np.log(data['close'])), 72)
+    # print(np.log(data['high']), np.log(data['low']), np.log(data['close']))
+
+
 
     trades, data_x, data_y = trendline_breakout_dataset(data, 72)
 
@@ -122,12 +159,12 @@ if __name__ == '__main__':
     
     print("Profit Factor", returns[returns > 0].sum() / returns[returns < 0].abs().sum())
     print("Win Rate", len(trades[trades['return'] > 0]) / len(trades))
-    print("Average Trade", trades['return'].mean()) 
-
+    print("Average Trade", trades['return'].mean())
 
     plt.style.use('dark_background')
     returns.cumsum().plot()
     plt.ylabel("Cumulative Log Return")
+    plt.show()
 
 
 
