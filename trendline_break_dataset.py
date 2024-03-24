@@ -10,24 +10,26 @@ import pandas as pd
 import pandas_ta as ta
 
 
-def atr_calc(high, low, close, lookback: int):
+def atr_calc(p_data: pd.DataFrame, n: int):
     """
     Average True Range calculator. Original file used pandas_ta's implementation of this but seems to not be working.
     Indicates degree of price volatility, not necessarily price trends.
     Formula can be found here: https://en.wikipedia.org/wiki/Average_true_range
     Help from: https://stackoverflow.com/questions/40256338/calculating-average-true-range-atr-on-ohlc-data-with-python
 
-    :param high: Series of highs from dataset
-    :param low: Series of lows from dataset
-    :param close: Series of closes from dataset
-    :param lookback: How far to look back in data
+    :param p_data: Pandas dataframe of stock data
+    :param n: Number of datapoints to average over
     :return: Series of average true ranges for the data
     """
-    data['tr0'] = abs(high - low)
-    data['tr1'] = abs(high - close.shift())
-    data['tr2'] = abs(low - close.shift())
-    tr = data[['tr0', 'tr1', 'tr2']].max(axis=1)
-    result = tr.ewm(alpha=1/lookback, adjust=False).mean()  # J. Welles Wilder's Exponential Moving Average
+    f_data = p_data.copy()
+    high = np.log(f_data['high'])
+    low = np.log(f_data['low'])
+    close = np.log(f_data['close'])
+    f_data['tr0'] = abs(high - low)
+    f_data['tr1'] = abs(high - close.shift())
+    f_data['tr2'] = abs(low - close.shift())
+    tr = f_data[['tr0', 'tr1', 'tr2']].max(axis=1)
+    result = tr.ewm(alpha=1/n, adjust=False).mean()  # J. Welles Wilder's Exponential Moving Average
     return result
 
 
@@ -41,7 +43,7 @@ def trendline_breakout_dataset(
     close = np.log(ohlcv['close'].to_numpy())
 
     # ATR for normalizing, setting stop loss take profit
-    atr = atr_calc(np.log(ohlcv['high']), np.log(ohlcv['low']), np.log(ohlcv['close']), atr_lookback)
+    atr = atr_calc(ohlcv, atr_lookback)
     atr_arr = atr.to_numpy()
 
     # Normalized volume
@@ -123,6 +125,7 @@ def trendline_breakout_dataset(
 
     return trades, data_x, data_y
 
+
 if __name__ == '__main__':
     """data = pd.read_csv('BTCUSDT3600.csv')
     data['date'] = data['date'].astype('datetime64[s]')
@@ -140,9 +143,7 @@ if __name__ == '__main__':
     # print(ta.atr(np.log(data['high']), np.log(data['low']), np.log(data['close'])), 72)
     # print(np.log(data['high']), np.log(data['low']), np.log(data['close']))
 
-
-
-    trades, data_x, data_y = trendline_breakout_dataset(data, 72)
+    trades, data_x, data_y = trendline_breakout_dataset(data, 168)
 
     # Drop any incomplete trades
     trades = trades.dropna()
@@ -164,7 +165,7 @@ if __name__ == '__main__':
     plt.style.use('dark_background')
     returns.cumsum().plot()
     plt.ylabel("Cumulative Log Return")
-    plt.show()
+    # plt.show()
 
 
 
