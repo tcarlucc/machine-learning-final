@@ -127,6 +127,7 @@ def fit_lower_trendline(data: np.array):
     line_points = coefs[0] * x + coefs[1]
     lower_pivot = (data - line_points).argmin() 
     support_coefs = optimize_slope(True, lower_pivot, coefs[0], data)
+    return support_coefs
 
 def fit_trendlines_single(data: np.array):
     # find line of best fit (least squared) 
