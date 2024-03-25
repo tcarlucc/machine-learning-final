@@ -407,7 +407,9 @@ if __name__ == '__main__':
     # data = pd.read_csv('BTCUSDT3600.csv')
     # data['date'] = data['date'].astype('datetime64[s]')
     # data = data.set_index('date')
-    data = yf.download('MSFT', period="max", interval='1d')
+    data = yf.download('MSFT', period="1y", interval='1d')
+    # data.to_csv("stock data")
+    print(data)
     data.rename(columns={'Date': 'date'}, inplace=True)
     data.rename(columns={'Open': 'open'}, inplace=True)
     data.rename(columns={'Close': 'close'}, inplace=True)
@@ -506,17 +508,20 @@ if __name__ == '__main__':
             bear_pennant_df.loc[i, 'return'] = ret 
 
     
-    all_data = pd.DataFrame()
-    alldata = pd.concat([bull_flag_df, bear_flag_df, bull_pennant_df, bear_pennant_df], keys=[0,1,2,3])
-    print(all_data)
+    # all_data = pd.DataFrame()
+    # alldata = pd.concat([bull_flag_df, bear_flag_df, bull_pennant_df, bear_pennant_df], keys=[0,1,2,3])
+    # print(all_data)
 
 
 
-    bull_flag_df.to_csv("data/bull_flag")
-    bear_flag_df.to_csv("data/bear_flag")
-    bull_pennant_df.to_csv("data/bull_pennant")
-    bear_pennant_df.to_csv("data/bear_pennant")
-    # print(bull_flag_df) 
-    # pd.Series(data['close'].to_numpy()).plot() 
-    # plt.show()
+    # bull_flag_df.to_csv("data/bull_flag")
+    # bear_flag_df.to_csv("data/bear_flag")
+    # bull_pennant_df.to_csv("data/bull_pennant")
+    # bear_pennant_df.to_csv("data/bear_pennant")
+    print(bull_flag_df) 
+    plt.xlabel("Time Steps")
+    plt.ylabel("Stock Price")
+    plt.title("MSFT Stock with Labeled Flags and Pennants")
+    pd.Series(data['close'].to_numpy()).plot(alpha=.5) 
+    plt.show()
 
