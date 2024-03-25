@@ -22,9 +22,9 @@ def atr_calc(p_data: pd.DataFrame, n: int):
     :return: Series of average true ranges for the data
     """
     f_data = p_data.copy()
-    high = np.log(f_data['high'])
-    low = np.log(f_data['low'])
-    close = np.log(f_data['close'])
+    high = np.log(f_data['High'])
+    low = np.log(f_data['Low'])
+    close = np.log(f_data['Close'])
     f_data['tr0'] = abs(high - low)
     f_data['tr1'] = abs(high - close.shift())
     f_data['tr2'] = abs(low - close.shift())
@@ -40,15 +40,15 @@ def trendline_breakout_dataset(
 ):
     assert(atr_lookback >= lookback)
 
-    close = np.log(ohlcv['close'].to_numpy())
+    close = np.log(ohlcv['Close'].to_numpy())
 
     # ATR for normalizing, setting stop loss take profit
     atr = atr_calc(ohlcv, atr_lookback)
     atr_arr = atr.to_numpy()
 
     # Normalized volume
-    vol_arr = (ohlcv['volume'] / ohlcv['volume'].rolling(atr_lookback).median()).to_numpy()
-    adx = ta.adx(ohlcv['high'], ohlcv['low'], ohlcv['close'], lookback)
+    vol_arr = (ohlcv['Volume'] / ohlcv['Volume'].rolling(atr_lookback).median()).to_numpy()
+    adx = ta.adx(ohlcv['High'], ohlcv['Low'], ohlcv['Close'], lookback)
     adx_arr = adx['ADX_' + str(lookback)].to_numpy()
 
     trades = pd.DataFrame()
@@ -133,15 +133,10 @@ if __name__ == '__main__':
     data = data.dropna()"""
 
     data = yf.download('AAPL', period="1y", interval='1h')
-    data.rename(columns={'Open': 'open'}, inplace=True)
-    data.rename(columns={'Adj Close': 'close'}, inplace=True)
-    data.rename(columns={'High': 'high'}, inplace=True)
-    data.rename(columns={'Low': 'low'}, inplace=True)
-    data.rename(columns={'Volume': 'volume'}, inplace=True)
 
-    print(data['high'])
-    # print(ta.atr(np.log(data['high']), np.log(data['low']), np.log(data['close'])), 72)
-    # print(np.log(data['high']), np.log(data['low']), np.log(data['close']))
+    print(data['High'])
+    # print(ta.atr(np.log(data['High']), np.log(data['low']), np.log(data['Close'])), 72)
+    # print(np.log(data['High']), np.log(data['low']), np.log(data['Close']))
 
     trades, data_x, data_y = trendline_breakout_dataset(data, 168)
 
@@ -154,7 +149,7 @@ if __name__ == '__main__':
         trade = trades.iloc[i]
         signal[int(trade['entry_i']):int(trade['exit_i'])] = 1.
 
-    data['r'] = np.log(data['close']).diff().shift(-1)
+    data['r'] = np.log(data['Close']).diff().shift(-1)
     data['sig'] = signal
     returns = data['r'] * data['sig']
     
