@@ -74,18 +74,16 @@ found [here](https://github.com/neurotrader888?tab=repositories). These programs
 that produce the tread lines, such as finding the perceptually important points and adjusting the tread lines to the 
 high and low values. These are an invaluable resource, and helped inspire this project. 
 
-The three functions implemented are described above
+The three functions we currently have implemented are described above
 
 ---
 
 
 
-
-
-
-
-
-
-
-
-
+> _Resources:_
+> - [matplotlibs documentations](https://matplotlib.org/)
+> - [Neurotrader888 Repository](https://github.com/neurotrader888?tab=repositories)
+> - [Numpy](https://numpy.org/doc/stable/user/whatisnumpy.html)
+> - [Pandas](https://pandas.pydata.org/)
+> - [Scikit-Learn](https://scikit-learn.org/stable/)
+> - [yfinance project](https://pypi.org/project/yfinance/)
