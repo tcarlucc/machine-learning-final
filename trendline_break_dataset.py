@@ -116,6 +116,7 @@ def trendline_breakout_dataset(
                 trade_i += 1
 
     trades['return'] = trades['exit_p'] - trades['entry_p']
+    trades.dropna(inplace=True)
     
     # Features
     data_x = trades[['resist_s', 'tl_err', 'vol', 'max_dist', 'adx']]

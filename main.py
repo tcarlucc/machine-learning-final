@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
+from sklearn.svm import SVC
 from trendline_automation import fit_upper_trendline, fit_lower_trendline
 from trendline_break_dataset import trendline_breakout_dataset
 
@@ -19,13 +20,16 @@ if __name__ == "__main__":
     # Interval params: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
     aapl = yf.download('AAPL', period='1y', interval='1h')
     aapl.drop('Adj Close', axis=1)
+
+    # TODO: For now, aapl will be the training data and msft will be test data. Adjust later.
     msft = yf.download('MSFT', period='1y', interval='1h')
 
     # Run trendline_breakout_dataset and accumulate examples
-    trades, data_x, data_y = trendline_breakout_dataset(aapl, DEFAULT_LOOKBACK)
+    aapl_trades, x_train, y_train = trendline_breakout_dataset(aapl, DEFAULT_LOOKBACK)
+    msft_trades, x_test, y_test = trendline_breakout_dataset(msft, DEFAULT_LOOKBACK)
 
     # Plot of example trade, its trendlines, and breakout candle.
-    index = int(trades.iloc[0].loc['entry_i'])
+    index = int(aapl_trades.iloc[0].loc['entry_i'])
     aapl_window = aapl[index-DEFAULT_LOOKBACK:index+1]  # +1 to include candle breaking out of resistance
 
     resist_coefs = fit_upper_trendline(aapl_window['High'])
@@ -36,3 +40,11 @@ if __name__ == "__main__":
     apds = [mpf.make_addplot(pd.DataFrame(r_trendline_values)),
             mpf.make_addplot(pd.DataFrame(s_trendline_values))]
     mpf.plot(aapl_window, type='candle', style='yahoo', addplot=apds)
+
+    # Training a SVM on the metalabled data
+    model = SVC(kernel="linear")
+    model.fit(x_train, y_train)
+    results = model.predict(x_test)
+    print(results)
+
+
