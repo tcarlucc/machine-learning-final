@@ -8,10 +8,15 @@ import pandas as pd
 import yfinance as yf
 
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, classification_report
 from trendline_automation import fit_upper_trendline, fit_lower_trendline
 from trendline_break_dataset import trendline_breakout_dataset
 
 DEFAULT_LOOKBACK = 168
+
+
+def conf_matrix_to_df(conf_matrix):
+    return pd.DataFrame(conf_matrix)
 
 
 if __name__ == "__main__":
@@ -22,7 +27,7 @@ if __name__ == "__main__":
     aapl.drop('Adj Close', axis=1)
 
     # TODO: For now, aapl will be the training data and msft will be test data. Adjust later.
-    msft = yf.download('MSFT', period='1y', interval='1h')
+    msft = yf.download('MSFT', period='5y', interval='1d')
 
     # Run trendline_breakout_dataset and accumulate examples
     aapl_trades, x_train, y_train = trendline_breakout_dataset(aapl, DEFAULT_LOOKBACK)
@@ -47,4 +52,5 @@ if __name__ == "__main__":
     results = model.predict(x_test)
     print(results)
 
-
+    # Confusion Matrix for analysis
+    print(conf_matrix_to_df(confusion_matrix(y_test, results)))
