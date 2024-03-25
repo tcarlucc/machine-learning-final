@@ -30,21 +30,22 @@ if __name__ == "__main__":
 
     # Plot of example trade, its trendlines, and breakout candle.
     index = int(aapl_trades.iloc[0].loc['entry_i'])
-    aapl_window = aapl[index-DEFAULT_LOOKBACK:index+1]  # +1 to include candle breaking out of resistance
+    aapl_window = aapl[index-DEFAULT_LOOKBACK:index]  # +1 to include candle breaking out of resistance
+    aapl_window_display = aapl[index-DEFAULT_LOOKBACK:index+1]  # +1 to include candle breaking out of resistance
 
     resist_coefs = fit_upper_trendline(aapl_window['High'])
     support_coefs = fit_lower_trendline(aapl_window['Low'])
-    r_trendline_values = resist_coefs[0] * np.arange(len(aapl_window)) + resist_coefs[1]
-    s_trendline_values = support_coefs[0] * np.arange(len(aapl_window)) + support_coefs[1]
+    r_trendline_values = resist_coefs[0] * np.arange(len(aapl_window_display)) + resist_coefs[1]
+    s_trendline_values = support_coefs[0] * np.arange(len(aapl_window_display)) + support_coefs[1]
 
     apds = [mpf.make_addplot(pd.DataFrame(r_trendline_values)),
             mpf.make_addplot(pd.DataFrame(s_trendline_values))]
-    mpf.plot(aapl_window, type='candle', style='yahoo', addplot=apds)
+    mpf.plot(aapl_window_display, type='candle', style='yahoo', addplot=apds)
 
     # Training a SVM on the metalabled data
-    model = SVC(kernel="linear")
-    model.fit(x_train, y_train)
-    results = model.predict(x_test)
-    print(results)
+#     model = SVC(kernel="linear")
+#     model.fit(x_train, y_train)
+#     results = model.predict(x_test)
+#     print(results)
 
 
