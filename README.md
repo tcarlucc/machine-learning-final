@@ -1,4 +1,4 @@
-# Stock Evaluation Using Pattern Recognition
+# Stock Evaluation Utilizing Algorithmic Pattern Recognition
 
 ---
 #### CS3540 Machine Learning Final Project
@@ -10,7 +10,9 @@
 machine learning models*
 
 ---
-#### Needed Libraries:
+### INSTRUCTIONS:
+
+First, make sure the following libraries are installed
 ```
 pip install numpy
 pip install matplotlib
@@ -19,10 +21,19 @@ pip install pandas
 pip install scikit-learn
 pip install yfinance
 ```
+All the computation will happen in main. There is no data you need to download directly, just download
+files from the github repository and make sure it is organized the same way.
+
+You can choose to evaluate the main notebook all at once or step by step. It is reccommended to avoid running cell three
+after the first iteration as it downloads the data from yahoo, and since you only need to fetch this
+data once doing it again just increases run time. 
+
+Both a plot and a confusion matrix will be shown for each iteration, showing the trend lines of the stock as well as a
+confusion matrix showing the performance of our model. A list of the predictions made is also printed
+
 ---
 
-
-#### Code Breakdown
+#### Code Breakdown:
 
 **main.ipynb**:
 
@@ -50,6 +61,8 @@ Used to create images for presentation
 Jupyter Notebook version of .py file of the same name in neurotrader file. Has no function in greater program, only used
 for testing preliminary results and attempts to optimize the hard coded gradient descent algorithm
 
+Not used in anything? Can delete or put in another fold?
+
 **treadline_calc.py**
 
 Not used in anything? Can delete?
@@ -60,6 +73,10 @@ Programs found in this folder are pulled from several public repositories,
 found [here](https://github.com/neurotrader888?tab=repositories). These programs do the preliminary calculations
 that produce the tread lines, such as finding the perceptually important points and adjusting the tread lines to the 
 high and low values. These are an invaluable resource, and helped inspire this project. 
+
+The three functions implemented are described above
+
+---
 
 
 
