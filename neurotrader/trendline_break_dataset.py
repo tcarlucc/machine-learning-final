@@ -4,10 +4,7 @@ import pandas_ta as ta
 import matplotlib.pyplot as plt
 from neurotrader.trendline_automation import fit_trendlines_single, fit_upper_trendline
 import mplfinance as mpf
-import yfinance as yf 
-import numpy as np
-import pandas as pd
-import pandas_ta as ta
+import yfinance as yf
 
 
 def atr_calc(p_data: pd.DataFrame, n: int):
