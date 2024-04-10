@@ -22,8 +22,8 @@ bear_flag = pd.read_csv("machine-learning-final/data/bear_flag")
 bull_pennant = pd.read_csv("machine-learning-final/data/bull_pennant")
 bear_pennant = pd.read_csv("machine-learning-final/data/bear_pennant")
 
-# all_data = pd.DataFrame(columns=["type", "flag_width", "flag_height", "pole_width", "pole_height", "slope", "return"])
-all_data = pd.concat([bull_flag, bear_flag, bull_pennant, bear_pennant], keys=["bull_flag", "bear_flag", "bull_pennant", "bear_pennant"])
+# all_data = pd.concat([bull_flag, bear_flag, bull_pennant, bear_pennant], keys=["bull_flag", "bear_flag", "bull_pennant", "bear_pennant"])
+all_data = pd.concat([bull_flag, bear_flag], keys=["bull_flag", "bear_flag"])
 
 # for value in bull_flag:
 #     all_data.append([1, value])

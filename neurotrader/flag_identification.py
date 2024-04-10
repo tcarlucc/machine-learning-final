@@ -474,8 +474,8 @@ if __name__ == '__main__':
             bear_flag_df.loc[i, 'return'] = ret 
 
     for i, pennant in enumerate(bull_pennants):
-        bull_pennant_df.loc[i, 'pennant_width'] = pennant.flag_width
-        bull_pennant_df.loc[i, 'pennant_height'] = pennant.flag_height
+        bull_pennant_df.loc[i, 'flag_width'] = pennant.flag_width
+        bull_pennant_df.loc[i, 'flag_height'] = pennant.flag_height
         bull_pennant_df.loc[i, 'pole_width'] = pennant.pole_width
         bull_pennant_df.loc[i, 'pole_height'] = pennant.pole_height
         bull_pennant_df.loc[i, 'conf-x'] = pennant.conf_x
@@ -494,8 +494,8 @@ if __name__ == '__main__':
             bull_pennant_df.loc[i, 'return'] = ret 
 
     for i, pennant in enumerate(bear_pennants):
-        bear_pennant_df.loc[i, 'pennant_width'] = pennant.flag_width
-        bear_pennant_df.loc[i, 'pennant_height'] = pennant.flag_height
+        bear_pennant_df.loc[i, 'flag_width'] = pennant.flag_width
+        bear_pennant_df.loc[i, 'flag_height'] = pennant.flag_height
         bear_pennant_df.loc[i, 'pole_width'] = pennant.pole_width
         bear_pennant_df.loc[i, 'pole_height'] = pennant.pole_height
         bear_pennant_df.loc[i, 'conf-x'] = pennant.conf_x
