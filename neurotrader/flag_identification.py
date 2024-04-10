@@ -407,7 +407,7 @@ if __name__ == '__main__':
     # data = pd.read_csv('BTCUSDT3600.csv')
     # data['date'] = data['date'].astype('datetime64[s]')
     # data = data.set_index('date')
-    data = yf.download('MSFT', period="1y", interval='1d')
+    data = yf.download('MSFT', period="max", interval='1d')
     # data.to_csv("stock data")
     print(data)
     data.rename(columns={'Date': 'date'}, inplace=True)
@@ -458,6 +458,8 @@ if __name__ == '__main__':
         bear_flag_df.loc[i, 'pole_width'] = flag.pole_width
         bear_flag_df.loc[i, 'pole_height'] = flag.pole_height
         bear_flag_df.loc[i, 'slope'] = flag.support_slope
+        bear_flag_df.loc[i, 'conf-x'] = flag.conf_x
+        bear_flag_df.loc[i, 'conf-y'] = flag.conf_y
 
         # base, tip, conf
         x = [flag.base_x, flag.tip_x, flag.conf_x]
@@ -476,6 +478,8 @@ if __name__ == '__main__':
         bull_pennant_df.loc[i, 'pennant_height'] = pennant.flag_height
         bull_pennant_df.loc[i, 'pole_width'] = pennant.pole_width
         bull_pennant_df.loc[i, 'pole_height'] = pennant.pole_height
+        bull_pennant_df.loc[i, 'conf-x'] = pennant.conf_x
+        bull_pennant_df.loc[i, 'conf-y'] = pennant.conf_y
 
         # base, tip, conf
         x = [pennant.base_x, pennant.tip_x, pennant.conf_x]
@@ -494,6 +498,8 @@ if __name__ == '__main__':
         bear_pennant_df.loc[i, 'pennant_height'] = pennant.flag_height
         bear_pennant_df.loc[i, 'pole_width'] = pennant.pole_width
         bear_pennant_df.loc[i, 'pole_height'] = pennant.pole_height
+        bear_pennant_df.loc[i, 'conf-x'] = pennant.conf_x
+        bear_pennant_df.loc[i, 'conf-y'] = pennant.conf_y
 
         # base, tip, conf
         x = [pennant.base_x, pennant.tip_x, pennant.conf_x]
@@ -513,15 +519,14 @@ if __name__ == '__main__':
     # print(all_data)
 
 
-
-    # bull_flag_df.to_csv("data/bull_flag")
-    # bear_flag_df.to_csv("data/bear_flag")
-    # bull_pennant_df.to_csv("data/bull_pennant")
-    # bear_pennant_df.to_csv("data/bear_pennant")
-    print(bull_flag_df) 
-    plt.xlabel("Time Steps")
-    plt.ylabel("Stock Price")
-    plt.title("MSFT Stock with Labeled Flags and Pennants")
-    pd.Series(data['close'].to_numpy()).plot(alpha=.5) 
-    plt.show()
+    bull_flag_df.to_csv("machine-learning-final/data/bull_flag")
+    bear_flag_df.to_csv("machine-learning-final/data/bear_flag")
+    bull_pennant_df.to_csv("machine-learning-final/data/bull_pennant")
+    bear_pennant_df.to_csv("machine-learning-final/data/bear_pennant")
+    # print(bull_flag_df) 
+    # plt.xlabel("Time Steps")
+    # plt.ylabel("Stock Price")
+    # plt.title("MSFT Stock with Labeled Flags and Pennants")
+    # pd.Series(data['close'].to_numpy()).plot(alpha=.5) 
+    # plt.show()
 
