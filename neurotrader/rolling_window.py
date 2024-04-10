@@ -41,6 +41,7 @@ def rw_bottom(data: np.array, curr_index: int, order: int) -> bool:
 
     return bottom
 
+
 # Look for each extreme by looping through each candle in the data
 def rw_extremes(data: np.array, order: int):
     # Rolling window local tops and bottoms
