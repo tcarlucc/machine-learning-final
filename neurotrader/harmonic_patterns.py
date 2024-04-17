@@ -1,5 +1,8 @@
 """
-Looks
+The last confirmed top/bottom from the directional change algorithm will serve as the C point
+The most recent candle will serve as the D point
+If the last confirmed extreme was a top, look for bullish
+If the last confirmed extreme was a bottom, look for a bearish
 """
 import pandas as pd
 import numpy as np
@@ -12,6 +15,7 @@ from typing import Union
 from math import log
 
 # This holds the ratio of the patterns
+# Can be three types: Float, List, or None
 @dataclass
 class XABCD:
     XA_AB: Union[float, list, None]
@@ -21,6 +25,8 @@ class XABCD:
     name: str
 
 # Define Patterns
+# Notice that there is a range of acceptable values
+# Pattern recognition can handle any combination as some patterns do not need all values
 GARTLEY = XABCD(0.618, [0.382, 0.886], [1.13, 1.618], 0.786, "Gartley")
 BAT = XABCD([0.382, 0.50], [0.382, 0.886], [1.618, 2.618], 0.886, "Bat")
 #ALT_BAT = XABCD(0.382, [0.382, 0.886], [2.0, 3.618], 1.13, "Alt Bat")
@@ -29,8 +35,10 @@ CRAB = XABCD([0.382, 0.618], [0.382, 0.886], [2.618, 3.618], 1.618, "Crab")
 DEEP_CRAB = XABCD(0.886, [0.382, 0.886], [2.0, 3.618], 1.618, "Deep Crab")
 CYPHER = XABCD([0.382, 0.618], [1.13, 1.41], [1.27, 2.00], 0.786, "Cypher")
 SHARK = XABCD(None, [1.13, 1.618], [1.618, 2.24], [0.886, 1.13], "Shark")
+# Have to add all the patterns to this list
 ALL_PATTERNS = [GARTLEY, BAT, BUTTERFLY, CRAB, DEEP_CRAB, CYPHER, SHARK]
 
+# This holds the location of all the found patterns
 @dataclass
 class XABCDFound:
     X: int
@@ -42,6 +50,7 @@ class XABCDFound:
     name: str
     bull: bool
 
+# Plots the patterns once we find them
 def plot_pattern(ohlc: pd.DataFrame, pat: XABCDFound, pad=3):
     idx = ohlc.index
     data = ohlc.iloc[pat.X - pad: pat.D + 1 + pad]
