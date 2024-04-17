@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import mplfinance as mpf
 
 
+# Sigma is the percent retracement value
 def directional_change(close: np.array, high: np.array, low: np.array, sigma: float):
     up_zig = True  # Last extreme is a bottom. Next is a top.
     tmp_max = high[0]
@@ -16,6 +17,7 @@ def directional_change(close: np.array, high: np.array, low: np.array, sigma: fl
     tops = []
     bottoms = []
 
+    # For each point in the dataset
     for i in range(len(close)):
         if up_zig:  # Last extreme is a bottom
             if high[i] > tmp_max:
@@ -56,9 +58,12 @@ def directional_change(close: np.array, high: np.array, low: np.array, sigma: fl
 
 
 def get_extremes(ohlc: pd.DataFrame, sigma: float):
+    # Call directional change function to find list of tops and bottoms
     tops, bottoms = directional_change(ohlc['close'], ohlc['high'], ohlc['low'], sigma)
+    # Convert lists to dataframes
     tops = pd.DataFrame(tops, columns=['conf_i', 'ext_i', 'ext_p'])
     bottoms = pd.DataFrame(bottoms, columns=['conf_i', 'ext_i', 'ext_p'])
+    # Add an id type and concatenate the two dataframes,
     tops['type'] = 1
     bottoms['type'] = -1
     extremes = pd.concat([tops, bottoms])
