@@ -6,7 +6,7 @@ from neurotrader.rolling_window import rw_top, rw_bottom
 from typing import List
 from collections import deque
 from dataclasses import dataclass
-from download_data import download_df
+from neurotrader.download_data import download_df
 
 
 @dataclass
@@ -74,7 +74,6 @@ def compute_pattern_r2(data: np.array, pat: HSPattern):
 
 
 # Finds Head and Shoulder patterns on an input array
-# Todo: Train model to detect patterns
 def check_hs_pattern(extrema_indices: List[int], data: np.array, i: int, early_find: bool = False) -> HSPattern:
     ''' Returns a HSPattern if found, or None if not found '''
     # Unpack list
@@ -278,13 +277,18 @@ def check_ihs_pattern(extrema_indices: List[int], data: np.array, i: int, early_
 
     return pat
 
-
+"""
+find_hs_patterns. Detect and label HS patterns
+    data: numpy array of close data, normalized using logs
+    order: For the rolling window algorithm. Larger = bigger pattern
+    early_find: Do we want to try to detect patterns early
+    
+    returns: hs_patterns, ihs_patterns, which are the location of found patterns
+"""
 def find_hs_patterns(data: np.array, order: int, early_find: bool = False):
     assert (order >= 1)
 
-    # head and shoulders top checked from/after a confirmed bottom (before right shoulder)
-    # head and shoulders bottom checked from/after a confirmed top 
-
+    # Track the last five price extremes
     last_is_top = False
     recent_extrema = deque(maxlen=5)
     recent_types = deque(maxlen=5)  # -1 for bottoms 1 for tops
@@ -293,10 +297,15 @@ def find_hs_patterns(data: np.array, order: int, early_find: bool = False):
     hs_lock = False
     ihs_lock = False
 
+    # Return Variables
     ihs_patterns = []  # Inverted (bullish)
     hs_patterns = []  # Regular (bearish)
-    for i in range(len(data)):
 
+    # Loop through each candle in the dataset
+    # This is O(N^2) time
+    for i in range(len(data)):
+        # As rolling window tops and bottoms are found, add their index to
+        #   The recent extrema
         if rw_top(data, i, order):
             recent_extrema.append(i - order)
             recent_types.append(1)
@@ -309,12 +318,16 @@ def find_hs_patterns(data: np.array, order: int, early_find: bool = False):
             hs_lock = False
             last_is_top = False
 
+        # If we do not have five extrema, we cannot id the pattern
         if len(recent_extrema) < 5:
             continue
 
+        # Have to verify that the tops and bottoms alternate
         hs_alternating = True
         ihs_alternating = True
 
+        # Check for the head and shoulder patterns after rolling window confirms
+        #   what would be the right armpit
         if last_is_top:
             for j in range(2, 5):
                 if recent_types[j] == recent_types[j - 1]:
