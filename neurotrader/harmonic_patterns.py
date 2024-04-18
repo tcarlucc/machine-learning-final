@@ -268,6 +268,7 @@ if __name__ == '__main__':
         extremes = get_extremes(data, sigma)
         output = find_xabcd(data, extremes, 0.5)
         sig = np.zeros(len(data))
+        # This code ensures no overlapping trades
         for pat in ALL_PATTERNS:
             sig += output[pat.name]['bear_signal'] + output[pat.name]['bull_signal']
         all_combined += sig
