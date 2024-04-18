@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 import scipy
-from directional_change import directional_change, get_extremes
+from neurotrader.directional_change import directional_change, get_extremes
 from dataclasses import dataclass
 from typing import Union
 from math import log
