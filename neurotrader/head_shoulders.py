@@ -277,6 +277,7 @@ def check_ihs_pattern(extrema_indices: List[int], data: np.array, i: int, early_
 
     return pat
 
+
 """
 find_hs_patterns. Detect and label HS patterns
     data: numpy array of close data, normalized using logs
@@ -407,7 +408,7 @@ def get_pattern_return(data: np.array, pat: HSPattern, log_prices: bool = True) 
             return -1 * (exit_price - entry_price) / entry_price
 
 
-def plot_hs(candle_data: pd.DataFrame, pat: HSPattern, pad: int = 2):
+def plot_hs(candle_data: pd.DataFrame, ticker, pat: HSPattern, pad: int = 2):
     if pad < 0:
         pad = 0
 
@@ -434,10 +435,30 @@ def plot_hs(candle_data: pd.DataFrame, pat: HSPattern, pad: int = 2):
     else:
         y = pat.head_p - pat.head_height * 1.25
 
-    ax.text(x, y,
-            f"BTC-USDT 1H ({idx[pat.start_i].strftime('%Y-%m-%d %H:%M')} - {idx[pat.break_i].strftime('%Y-%m-%d %H:%M')})",
-            color='white', fontsize='xx-large')
+    plt.title(
+        f"{ticker} ({idx[pat.start_i].strftime('%Y-%m-%d %H:%M')} - {idx[pat.break_i].strftime('%Y-%m-%d %H:%M')})",
+        color='white', fontsize='xx-large')
     plt.show()
+
+
+def load_attributes(dat_slice: pd.DataFrame, hs_df: pd.DataFrame, hs_patterns: pd.DataFrame, length_data: int):
+    for i, hs in enumerate(hs_patterns):
+        hs_df.loc[i, 'head_width'] = hs.head_width
+        hs_df.loc[i, 'head_height'] = hs.head_height
+        hs_df.loc[i, 'r2'] = hs.pattern_r2
+        hs_df.loc[i, 'neck_slope'] = hs.neck_slope
+
+        hp = int(hs.head_width)
+
+        if hs.break_i + hp >= length_data:
+            hs_df.loc[i, 'hold_return'] = np.nan
+        else:
+            ret = -1 * (dat_slice[hs.break_i + hp] - dat_slice[hs.break_i])
+            hs_df.loc[i, 'hold_return'] = ret
+
+        hs_df.loc[i, 'stop_return'] = get_pattern_return(dat_slice, hs)
+
+    return hs_df
 
 
 if __name__ == '__main__':
@@ -451,35 +472,35 @@ if __name__ == '__main__':
     ihs_df = pd.DataFrame()
 
     # Load pattern attributes into dataframe
-    for i, hs in enumerate(hs_patterns):
-        hs_df.loc[i, 'head_width'] = hs.head_width
-        hs_df.loc[i, 'head_height'] = hs.head_height
-        hs_df.loc[i, 'r2'] = hs.pattern_r2
-        hs_df.loc[i, 'neck_slope'] = hs.neck_slope
-
-        hp = int(hs.head_width)
-        if hs.break_i + hp >= len(data):
-            hs_df.loc[i, 'hold_return'] = np.nan
-        else:
-            ret = -1 * (dat_slice[hs.break_i + hp] - dat_slice[hs.break_i])
-            hs_df.loc[i, 'hold_return'] = ret
-
-        hs_df.loc[i, 'stop_return'] = get_pattern_return(dat_slice, hs)
-
-        # Load pattern attributes into dataframe
-    for i, hs in enumerate(ihs_patterns):
-        ihs_df.loc[i, 'head_width'] = hs.head_width
-        ihs_df.loc[i, 'head_height'] = hs.head_height
-        ihs_df.loc[i, 'r2'] = hs.pattern_r2
-        ihs_df.loc[i, 'neck_slope'] = hs.neck_slope
-
-        hp = int(hs.head_width)
-        if hs.break_i + hp >= len(data):
-            ihs_df.loc[i, 'hold_return'] = np.nan
-        else:
-            ret = dat_slice[hs.break_i + hp] - dat_slice[hs.break_i]
-            ihs_df.loc[i, 'hold_return'] = ret
-
-        ihs_df.loc[i, 'stop_return'] = get_pattern_return(dat_slice, hs)
-
-    plot_hs(data, hs_patterns[0], pad=0)
+    # for i, hs in enumerate(hs_patterns):
+    #     hs_df.loc[i, 'head_width'] = hs.head_width
+    #     hs_df.loc[i, 'head_height'] = hs.head_height
+    #     hs_df.loc[i, 'r2'] = hs.pattern_r2
+    #     hs_df.loc[i, 'neck_slope'] = hs.neck_slope
+    #
+    #     hp = int(hs.head_width)
+    #     if hs.break_i + hp >= len(data):
+    #         hs_df.loc[i, 'hold_return'] = np.nan
+    #     else:
+    #         ret = -1 * (dat_slice[hs.break_i + hp] - dat_slice[hs.break_i])
+    #         hs_df.loc[i, 'hold_return'] = ret
+    #
+    #     hs_df.loc[i, 'stop_return'] = get_pattern_return(dat_slice, hs)
+    #
+    #     # Load pattern attributes into dataframe
+    # for i, hs in enumerate(ihs_patterns):
+    #     ihs_df.loc[i, 'head_width'] = hs.head_width
+    #     ihs_df.loc[i, 'head_height'] = hs.head_height
+    #     ihs_df.loc[i, 'r2'] = hs.pattern_r2
+    #     ihs_df.loc[i, 'neck_slope'] = hs.neck_slope
+    #
+    #     hp = int(hs.head_width)
+    #     if hs.break_i + hp >= len(data):
+    #         ihs_df.loc[i, 'hold_return'] = np.nan
+    #     else:
+    #         ret = dat_slice[hs.break_i + hp] - dat_slice[hs.break_i]
+    #         ihs_df.loc[i, 'hold_return'] = ret
+    #
+    #     ihs_df.loc[i, 'stop_return'] = get_pattern_return(dat_slice, hs)
+    #
+    # plot_hs(data, hs_patterns[0], pad=0)
