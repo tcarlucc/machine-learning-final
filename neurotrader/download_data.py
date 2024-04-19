@@ -22,5 +22,3 @@ def download_df(ticker='AAPL', period='1y', interval='1d'):
     # df = df.log(df)
     
     return df
-
-
