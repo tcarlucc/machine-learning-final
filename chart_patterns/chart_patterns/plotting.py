@@ -450,24 +450,24 @@ def display_chart_pattern(ohlc: pd.DataFrame, pattern: str = "flag",
 
 if __name__ == '__main__':
     # read in your aapl data
-    ohlc = pd.read_csv("data/GOOGL_data.csv")  # headers must include - open, high, low, close
-    temp = pd.to_datetime(ohlc['Datetime'])
-    # Apply numeric and log to the data
-    ohlc = ohlc.apply(pd.to_numeric, errors='coerce')
-    ohlc = np.log(ohlc)
-
-    # Add the datetime we saved earlier back in
-    ohlc['Datetime'] = temp
-
-    ohlc = ohlc[['Datetime', 'open', 'high', 'low', 'close', 'volume']]
-    ohlc.rename(columns={"Datetime": "Date"}, inplace=True)
+    # ohlc = pd.read_csv("data/GOOGL_data.csv")  # headers must include - open, high, low, close
+    # temp = pd.to_datetime(ohlc['Datetime'])
+    # # Apply numeric and log to the data
+    # ohlc = ohlc.apply(pd.to_numeric, errors='coerce')
+    # ohlc = np.log(ohlc)
+    #
+    # # Add the datetime we saved earlier back in
+    # ohlc['Datetime'] = temp
+    #
+    # ohlc = ohlc[['Datetime', 'open', 'high', 'low', 'close', 'volume']]
+    # ohlc.rename(columns={"Datetime": "Date"}, inplace=True)
     # aapl_hs['Date'] = aapl_hs['Date'].dt.strftime('%Y-%m-%d-%H-%M-%S')
 
-    # ohlc_doubles_data = pd.read_csv("data/eurusd-4h.csv")
+    ohlc_doubles_data = pd.read_csv("data/eurusd-4h.csv")
 
     # Find the head and shoulers pattern
-    ohlc = find_head_and_shoulders_pattern(ohlc)
+    ohlc_doubles_data = find_head_and_shoulders_pattern(ohlc_doubles_data)
 
     # If multiple patterns were found, then plots will saved inside a folder named images/hs
 
-    display_chart_pattern(ohlc, pattern="hs")
+    display_chart_pattern(ohlc_doubles_data, pattern="hs")

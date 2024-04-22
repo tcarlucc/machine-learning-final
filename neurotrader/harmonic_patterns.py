@@ -253,7 +253,7 @@ def find_xabcd(ohlc: pd.DataFrame, extremes: pd.DataFrame, err_thresh: float = 0
 
 
 if __name__ == '__main__':
-    data = pd.read_csv('BTCUSDT3600.csv')
+    data = pd.read_csv('.csv')
     data['date'] = data['date'].astype('datetime64[s]')
     data = data.set_index('date')
     # data = data[data.index < '2019-01-01']

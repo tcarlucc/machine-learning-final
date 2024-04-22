@@ -408,7 +408,7 @@ def get_pattern_return(data: np.array, pat: HSPattern, log_prices: bool = True) 
             return -1 * (exit_price - entry_price) / entry_price
 
 
-def plot_hs(candle_data: pd.DataFrame, ticker, pat: HSPattern, pad: int = 2):
+def plot_hs(candle_data: pd.DataFrame, ticker: str, pat: HSPattern, pad: int = 2):
     if pad < 0:
         pad = 0
 
@@ -417,29 +417,29 @@ def plot_hs(candle_data: pd.DataFrame, ticker, pat: HSPattern, pad: int = 2):
 
     plt.style.use('dark_background')
     fig = plt.gcf()
-    ax = fig.gca()
+    plt.axis('off')
 
-    l0 = [(idx[pat.start_i], pat.neck_start), (idx[pat.l_shoulder], pat.l_shoulder_p)]
-    l1 = [(idx[pat.l_shoulder], pat.l_shoulder_p), (idx[pat.l_armpit], pat.l_armpit_p)]
-    l2 = [(idx[pat.l_armpit], pat.l_armpit_p), (idx[pat.head], pat.head_p)]
-    l3 = [(idx[pat.head], pat.head_p), (idx[pat.r_armpit], pat.r_armpit_p)]
-    l4 = [(idx[pat.r_armpit], pat.r_armpit_p), (idx[pat.r_shoulder], pat.r_shoulder_p)]
-    l5 = [(idx[pat.r_shoulder], pat.r_shoulder_p), (idx[pat.break_i], pat.neck_end)]
-    neck = [(idx[pat.start_i], pat.neck_start), (idx[pat.break_i], pat.neck_end)]
+    # l0 = [(idx[pat.start_i], pat.neck_start), (idx[pat.l_shoulder], pat.l_shoulder_p)]
+    # l1 = [(idx[pat.l_shoulder], pat.l_shoulder_p), (idx[pat.l_armpit], pat.l_armpit_p)]
+    # l2 = [(idx[pat.l_armpit], pat.l_armpit_p), (idx[pat.head], pat.head_p)]
+    # l3 = [(idx[pat.head], pat.head_p), (idx[pat.r_armpit], pat.r_armpit_p)]
+    # l4 = [(idx[pat.r_armpit], pat.r_armpit_p), (idx[pat.r_shoulder], pat.r_shoulder_p)]
+    # l5 = [(idx[pat.r_shoulder], pat.r_shoulder_p), (idx[pat.break_i], pat.neck_end)]
+    # neck = [(idx[pat.start_i], pat.neck_start), (idx[pat.break_i], pat.neck_end)]
 
-    mpf.plot(data, alines=dict(alines=[l0, l1, l2, l3, l4, l5, neck], colors=['w', 'w', 'w', 'w', 'w', 'w', 'r']),
-             type='candle', style='charles', ax=ax)
-    x = len(data) // 2 - len(data) * 0.1
-    if pat.inverted:
-        y = pat.head_p + pat.head_height * 1.25
-    else:
-        y = pat.head_p - pat.head_height * 1.25
+    # mpf.plot(data, alines=dict(alines=[l0, l1, l2, l3, l4, l5, neck], colors=['w', 'w', 'w', 'w', 'w', 'w', 'r']),
+    #          type='candle', style='charles', ax=ax)
 
-    plt.title(
-        f"{ticker} ({idx[pat.start_i].strftime('%Y-%m-%d %H:%M')} - {idx[pat.break_i].strftime('%Y-%m-%d %H:%M')})",
-        color='white', fontsize='xx-large')
-    plt.show()
+    mpf.plot(data, type='candle', style='charles')
 
+    # x = len(data) // 2 - len(data) * 0.1
+    # if pat.inverted:
+    #     y = pat.head_p + pat.head_height * 1.25
+    # else:
+    #     y = pat.head_p - pat.head_height * 1.25
+
+    plt.savefig("images/hs/" + ticker + '_' + str(pat.start_i) + ".png")
+    return True
 
 def load_attributes(dat_slice: pd.DataFrame, hs_df: pd.DataFrame, hs_patterns: pd.DataFrame, length_data: int):
     for i, hs in enumerate(hs_patterns):
