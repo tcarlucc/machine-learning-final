@@ -409,7 +409,6 @@ if __name__ == '__main__':
     # data = data.set_index('date')
     data = yf.download('MSFT', period="max", interval='1d')
     # data.to_csv("stock data")
-    print(data)
     data.rename(columns={'Date': 'date'}, inplace=True)
     data.rename(columns={'Open': 'open'}, inplace=True)
     data.rename(columns={'Close': 'close'}, inplace=True)
@@ -428,8 +427,13 @@ if __name__ == '__main__':
     bear_flag_df = pd.DataFrame()
     bear_pennant_df = pd.DataFrame()
 
+    MULT_RETURNS = False
+
     # Assemble data into dataframe
-    hold_mult = [.25, .5, .75, 1.0, 1.5, 2, 5] # Multipler of flag width to hold for after a pattern
+    if MULT_RETURNS:
+        hold_mult = [.25, .5, .75, 1.0, 1.5, 2, 5] # Multipler of flag width to hold for after a pattern
+    else:
+        hold_mult = [1.0]
     for i, flag in enumerate(bull_flags):
         bull_flag_df.loc[i, 'flag_width'] = flag.flag_width
         bull_flag_df.loc[i, 'flag_height'] = flag.flag_height
@@ -438,12 +442,13 @@ if __name__ == '__main__':
         bull_flag_df.loc[i, 'slope'] = flag.resist_slope
         bull_flag_df.loc[i, 'conf-x'] = flag.conf_x
         bull_flag_df.loc[i, 'conf-y'] = flag.conf_y
+        bull_flag_df.loc[i, 'volume'] = data.iloc[flag.conf_x]['volume']
         
         # base, tip, conf
         x = [flag.base_x, flag.tip_x, flag.conf_x]
         y = [flag.base_y, flag.tip_y, flag.conf_y]
         plt.plot(x, y, marker='.', color='red')
-
+    
         for hold in hold_mult:
             hp = int(flag.flag_width * hold)
             if flag.conf_x + hp >= len(data):
@@ -460,6 +465,8 @@ if __name__ == '__main__':
         bear_flag_df.loc[i, 'slope'] = flag.support_slope
         bear_flag_df.loc[i, 'conf-x'] = flag.conf_x
         bear_flag_df.loc[i, 'conf-y'] = flag.conf_y
+        bear_flag_df.loc[i, 'volume'] = data.iloc[flag.conf_x]['volume']
+
 
         # base, tip, conf
         x = [flag.base_x, flag.tip_x, flag.conf_x]
