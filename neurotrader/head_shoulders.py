@@ -417,7 +417,7 @@ def plot_hs(candle_data: pd.DataFrame, ticker: str, pat: HSPattern, pad: int = 2
 
     plt.style.use('dark_background')
     fig = plt.gcf()
-    plt.axis('off')
+    ax = fig.gca()
 
     # l0 = [(idx[pat.start_i], pat.neck_start), (idx[pat.l_shoulder], pat.l_shoulder_p)]
     # l1 = [(idx[pat.l_shoulder], pat.l_shoulder_p), (idx[pat.l_armpit], pat.l_armpit_p)]
