@@ -5,7 +5,6 @@ Author: Zetra Team
 For slider: https://community.plotly.com/t/multiple-traces-with-a-single-slider-in-plotly/16356/2
 """
 
-
 import os
 import pandas as pd
 import numpy as np
@@ -16,6 +15,7 @@ from chart_patterns.chart_patterns.utils import check_ohlc_names
 from chart_patterns.chart_patterns.head_and_shoulders import find_head_and_shoulders_pattern
 from plotly.subplots import make_subplots
 from typing import Dict, List, Union
+from datetime import datetime as dt
 
 
 def set_theme(fig: go.Candlestick, theme: Dict[str, str] = {"bg_color": "black", "up_color": "#3D9970",
@@ -447,27 +447,27 @@ def display_chart_pattern(ohlc: pd.DataFrame, pattern: str = "flag",
             fig.show()
 
 
-
 if __name__ == '__main__':
     # read in your aapl data
-    # ohlc = pd.read_csv("data/GOOGL_data.csv")  # headers must include - open, high, low, close
-    # temp = pd.to_datetime(ohlc['Datetime'])
-    # # Apply numeric and log to the data
-    # ohlc = ohlc.apply(pd.to_numeric, errors='coerce')
-    # ohlc = np.log(ohlc)
-    #
-    # # Add the datetime we saved earlier back in
-    # ohlc['Datetime'] = temp
-    #
-    # ohlc = ohlc[['Datetime', 'open', 'high', 'low', 'close', 'volume']]
-    # ohlc.rename(columns={"Datetime": "Date"}, inplace=True)
-    # aapl_hs['Date'] = aapl_hs['Date'].dt.strftime('%Y-%m-%d-%H-%M-%S')
+    ohlc = pd.read_csv("data/GOOGL_data.csv")  # headers must include - open, high, low, close
+    temp = pd.to_datetime(ohlc['Datetime'])
+    # Apply numeric and log to the data
+    ohlc = ohlc.apply(pd.to_numeric, errors='coerce')
+    ohlc = np.log(ohlc)
 
-    ohlc_doubles_data = pd.read_csv("data/eurusd-4h.csv")
+    # Add the datetime we saved earlier back in
+    ohlc['Datetime'] = temp
+
+    ohlc = ohlc[['Datetime', 'open', 'high', 'low', 'close', 'volume']]
+    ohlc.rename(columns={"Datetime": "Date", "open": "Open", "high": "High", "low": "Low",
+                         "close": "Close", "volume": "Volume"}, inplace=True)
+    ohlc['Date'] = ohlc['Date'].dt.strftime('%d.%m.%Y %H.%M')
+
+    # ohlc_doubles_data = pd.read_csv("data/eurusd-4h.csv")
 
     # Find the head and shoulers pattern
-    ohlc_doubles_data = find_head_and_shoulders_pattern(ohlc_doubles_data)
+    ohlc = find_head_and_shoulders_pattern(ohlc)
 
     # If multiple patterns were found, then plots will saved inside a folder named images/hs
 
-    display_chart_pattern(ohlc_doubles_data, pattern="hs")
+    display_chart_pattern(ohlc, pattern="hs")
