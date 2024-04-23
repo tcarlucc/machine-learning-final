@@ -121,12 +121,23 @@ def wavelet_denoise(series, wavelet='db1', level=1):
 
 
 def detect_head_shoulder_wavelet(df, window=3):
+    """
+    CHANGES MADE IN THIS FUNCTION by Nick Altland away from those of the original creator!
+
+        I changed the return from the wavlet_denoise function to be transformed into a series. The
+        original way has been depricated by recent releases of pandas, and this solution works. See
+        comments below for exact line adaptaions.
+
+    It has not been tested, but I assume that a similar problem will arise in algorithm 2. Algorithm 3 functions
+    without this change.
+    """
+
     roll_window = window
-    df['High_smooth'] = pd.Series(wavelet_denoise(df['High'], 'db1', level=1))
-    df['Low_smooth'] = pd.Series(wavelet_denoise(df['Low'], 'db1', level=1))
-    
-    df['high_roll_max'] = pd.Series(df['High_smooth'].rolling(window=roll_window).max())
-    df['low_roll_min'] = pd.Series(df['Low_smooth'].rolling(window=roll_window).min())
+    df['High_smooth'] = pd.Series(wavelet_denoise(df['High'], 'db1', level=1)) # added series convertion
+    df['Low_smooth'] = pd.Series(wavelet_denoise(df['Low'], 'db1', level=1)) # added series convertion
+
+    df['high_roll_max'] = pd.Series(df['High_smooth'].rolling(window=roll_window).max()) # added series convertion
+    df['low_roll_min'] = pd.Series(df['Low_smooth'].rolling(window=roll_window).min()) # added series convertion
     
     mask_head_shoulder = ((df['high_roll_max'] > df['High_smooth'].shift(1)) & (df['high_roll_max'] > df['High_smooth'].shift(-1)) & (df['High_smooth'] < df['High_smooth'].shift(1)) & (df['High_smooth'] < df['High_smooth'].shift(-1)))
     mask_inv_head_shoulder = ((df['low_roll_min'] < df['Low_smooth'].shift(1)) & (df['low_roll_min'] < df['Low_smooth'].shift(-1)) & (df['Low_smooth'] > df['Low_smooth'].shift(1)) & (df['Low_smooth'] > df['Low_smooth'].shift(-1)))
