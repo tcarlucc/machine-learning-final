@@ -80,15 +80,31 @@ def detect_triangle_pattern(df, window=3):
 
 
 def detect_wedge(df, window=3):
+    """
+    Error in the lambda function here. Working to fix it, which will require me
+        to modify the origional code
+
+    Solution: Change the call to iloc. NOT SURE IF THIS IS CORRECT But it does work?!!
+    """
     # Define the rolling window
     roll_window = window
     # Create a rolling window for High and Low
     df['high_roll_max'] = df['High'].rolling(window=roll_window).max()
     df['low_roll_min'] = df['Low'].rolling(window=roll_window).min()
+
+    # This goes through and checks the value of the current window against the previous value
+    # If the value before is larger, value is 1
+    # If the value after is larger, value is -1
+    # If the values are the same, value is 0
+    # ORIGINAL CODE IS COMMENTED OUT
+    # df['trend_high'] = df['High'].rolling(window=roll_window).apply(
+    #     lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)
+    # df['trend_low'] = df['Low'].rolling(window=roll_window).apply(
+    #     lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)\
     df['trend_high'] = df['High'].rolling(window=roll_window).apply(
-        lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)
+        lambda x: 1 if (x.iloc[-1] - x.iloc[0]) > 0 else -1 if (x.iloc[-1] - x.iloc[0]) < 0 else 0)
     df['trend_low'] = df['Low'].rolling(window=roll_window).apply(
-        lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)
+        lambda x: 1 if (x.iloc[-1] - x.iloc[0]) > 0 else -1 if (x.iloc[-1] - x.iloc[0]) < 0 else 0)
     # Create a boolean mask for Wedge Up pattern
     mask_wedge_up = (df['high_roll_max'] >= df['High'].shift(1)) & (df['low_roll_min'] <= df['Low'].shift(1)) & (
                 df['trend_high'] == 1) & (df['trend_low'] == 1)
@@ -104,6 +120,12 @@ def detect_wedge(df, window=3):
 
 
 def detect_channel(df, window=3):
+    """
+    Same error here in the lambda function. Working to fix it, which will require me
+        to modify the origional code
+
+    Solution: Change the call to iloc. NOT SURE IF THIS IS CORRECT But it does work?!!
+    """
     # Define the rolling window
     roll_window = window
     # Define a factor to check for the range of channel
@@ -111,10 +133,19 @@ def detect_channel(df, window=3):
     # Create a rolling window for High and Low
     df['high_roll_max'] = df['High'].rolling(window=roll_window).max()
     df['low_roll_min'] = df['Low'].rolling(window=roll_window).min()
+    # This goes through and checks the value of the current window against the previous value
+    # If the value before is larger, value is 1
+    # If the value after is larger, value is -1
+    # If the values are the same, value is 0
+    # ORIGINAL CODE IS COMMENTED OUT
+    # df['trend_high'] = df['High'].rolling(window=roll_window).apply(
+    #     lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)
+    # df['trend_low'] = df['Low'].rolling(window=roll_window).apply(
+    #     lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)\
     df['trend_high'] = df['High'].rolling(window=roll_window).apply(
-        lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)
+        lambda x: 1 if (x.iloc[-1] - x.iloc[0]) > 0 else -1 if (x.iloc[-1] - x.iloc[0]) < 0 else 0)
     df['trend_low'] = df['Low'].rolling(window=roll_window).apply(
-        lambda x: 1 if (x[-1] - x[0]) > 0 else -1 if (x[-1] - x[0]) < 0 else 0)
+        lambda x: 1 if (x.iloc[-1] - x.iloc[0]) > 0 else -1 if (x.iloc[-1] - x.iloc[0]) < 0 else 0)
     # Create a boolean mask for Channel Up pattern
     mask_channel_up = (df['high_roll_max'] >= df['High'].shift(1)) & (df['low_roll_min'] <= df['Low'].shift(1)) & (
                 df['high_roll_max'] - df['low_roll_min'] <= channel_range * (
