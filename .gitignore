@@ -1,8 +1,8 @@
 /data
 /images/
 /TradingPatternScanner
-/tradingpatterns/data
-/tradingpatterns/stock_patterns
+/CNN/tradingpatterns/data
+/CNN/tradingpatterns/stock_patterns
 stock_patterns.zip
 .idea
 
