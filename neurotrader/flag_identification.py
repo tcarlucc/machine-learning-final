@@ -416,7 +416,7 @@ if __name__ == '__main__':
     data.rename(columns={'Low': 'low'}, inplace=True)
     data.rename(columns={'Volume': 'volume'}, inplace=True)
 
-    data = np.log(data)
+    # data = np.log(data)
 
     dat_slice = data['close'].to_numpy()
     #bull_flags, bear_flags, bull_pennants, bear_pennants  = find_flags_pennants_pips(dat_slice, 12)
@@ -466,7 +466,6 @@ if __name__ == '__main__':
         bear_flag_df.loc[i, 'conf-x'] = flag.conf_x
         bear_flag_df.loc[i, 'conf-y'] = flag.conf_y
         bear_flag_df.loc[i, 'volume'] = data.iloc[flag.conf_x]['volume']
-
 
         # base, tip, conf
         x = [flag.base_x, flag.tip_x, flag.conf_x]

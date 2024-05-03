@@ -5,6 +5,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from IPython.display import display
+import statistics as stat
+
 
 # TensorFlow and tf.keras
 import tensorflow as tf
@@ -15,7 +18,11 @@ import os
 # from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import optimizers, losses
+from tensorflow.keras import optimizers as optimizer
+from tensorflow.keras import losses as loss
+from tensorflow.keras import activations as activation
+from tensorflow.keras import layers as layers
+from tensorflow.keras import metrics as metric
 
 from sklearn.model_selection import train_test_split
 
@@ -30,7 +37,9 @@ def z_score_normalization(data):
             global return_std, return_mean
             return_mean = np.mean(data[column])
             return_std = np.std(data[column])
-        data[column] = (data[column] - np.mean(data[column])) / np.std(data[column])
+        # remove else to normalize return too!
+        else:                   
+            data[column] = (data[column] - np.mean(data[column])) / np.std(data[column])
 
 def unnormalize_return(value, data):
     return (value * return_std) + return_mean
@@ -69,22 +78,18 @@ def get_and_preprocess_data(bull_path, bear_path, test_size):
     return train_test_split(X, y, test_size=test_size)
 
 
-def neural_network(batch_size, steps_per_epoch, n_hidden_layers):
+def neural_network(nn_activation, nn_optimizer):
     model = Sequential()
 
     model.add(Flatten())
-    for i in range(n_hidden_layers + 1):
-        model.add(Dense(100, activation = 'relu'))
+    # for i in range(n_hidden_layers + 1):
+    model.add(Dense(100, activation = nn_activation))
+    model.add(Dense(100, activation = nn_activation))
+    model.add(Dense(100, activation = nn_activation))
     model.add(Dense(1, activation='linear'))
 
-    # Decaying learning rate is helpful
-    # lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-    #     0.001,
-    #     decay_steps=steps_per_epoch * 1000,
-    #     decay_rate=1,
-    #     staircase=False)
 
-    model.compile(optimizer=optimizers.Adam(), loss=losses.MeanSquaredError(), metrics=[keras.metrics.MeanAbsoluteError()])
+    model.compile(optimizer=nn_optimizer, loss=loss.MeanSquaredError(), metrics=[metric.MeanAbsoluteError()])
 
     return model
 
@@ -129,7 +134,7 @@ def run_single_return_early_stopping(max_epochs):
 
     # X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=test_size)
     os.system("rm -rf ./logs/")
-    for i in range(20):
+    for i in range(5):
     
         model = neural_network(BATCH_SIZE, STEPS_PER_EPOCH, (i%5) + 1)
         log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -175,10 +180,74 @@ def run_single_return_early_stopping(max_epochs):
     # _ = plt.ylabel('Count')
     # plt.show()
 
+def get_opt_name(opt):
+    """
+    Creates a file name showing the optimizer and activation function to be used with tensorflow logs
+    """
+    to_return = ""
+    match opt:
+        case optimizer.legacy.Adagrad():
+            to_return += "Adagrad_"
+        case optimizer.legacy.Adam():
+            to_return += "Adam_"
+        case optimizer.legacy.RMSprop():
+            to_return += "RMSProp_"
+        case optimizer.legacy.SGD():
+            to_return += "SGD_"
+        case _:
+            to_return += "error_"
+        
+    return to_return
+
+
+def run_sample_nn_structure():
+    bull_path = "data/new_data/bull_flag"
+    bear_path = "data/new_data/bear_flag"
+    test_size = .35
+    MAX_EPOCHS = 30
+
+    X_train, X_val, y_train, y_val = get_and_preprocess_data(bull_path, bear_path, test_size)
+    X_val, X_test, y_val, y_test = train_test_split(X_val, y_val, test_size=test_size)
+    
+    optimizers = [optimizer.legacy.Adagrad(), optimizer.legacy.Adam(), optimizer.legacy.RMSprop(), optimizer.legacy.SGD()]
+    activations = ["tanh", "sigmoid", "relu", "leaky_relu"]
+
+    os.system("rm -rf ./logs/")
+
+    data = pd.DataFrame(columns=["optimizer", "activation", "test_avg", "test_best", "train_avg", "train_best", "run1", "run2", "run3"])
+
+    for opt in optimizers:
+        for act in activations:
+            test_maes = []
+            train_maes = []
+            for i in range(3):
+                model = neural_network(act, opt)
+                label = get_opt_name(opt)
+                log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + label + act
+                tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+                
+                history = model.fit(X_train, y_train, epochs=MAX_EPOCHS, verbose=0, validation_data=(X_val, y_val), callbacks=[tensorboard_callback])
+
+                evaluation = model.evaluate(X_test, y_test, batch_size=16, verbose=0)
+
+                test_maes.append(evaluation[1])
+                train_maes.append(min(history.history['mean_absolute_error']))
+
+            toAdd = {'optimizer': get_opt_name(opt), 'activation': act, "test_avg":stat.mean(test_maes), 
+                     "test_best": max(test_maes), "train_avg":stat.mean(train_maes), "train_best": max(train_maes),
+                       'run1': test_maes[0], 'run2': test_maes[1], 'run3': test_maes[2]}
+            toAdd = pd.DataFrame(toAdd, index=[0])
+            display(toAdd)
+            data = pd.concat([data, toAdd], ignore_index = True)
+
+    display(data)
+
+    os.system("tensorboard --logdir logs/fit")
 
 def main():
     # run_with_single_return()
-    run_single_return_early_stopping(75)
+    # run_single_return_early_stopping(75)
+    run_sample_nn_structure()
 
 
 main()
