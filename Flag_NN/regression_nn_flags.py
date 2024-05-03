@@ -37,9 +37,8 @@ def z_score_normalization(data):
             global return_std, return_mean
             return_mean = np.mean(data[column])
             return_std = np.std(data[column])
-        # remove else to normalize return too!
-        else:                   
-            data[column] = (data[column] - np.mean(data[column])) / np.std(data[column])
+        # add else to normalize return too!                 
+        data[column] = (data[column] - np.mean(data[column])) / np.std(data[column])
 
 def unnormalize_return(value, data):
     return (value * return_std) + return_mean
@@ -82,7 +81,6 @@ def neural_network(nn_activation, nn_optimizer):
     model = Sequential()
 
     model.add(Flatten())
-    # for i in range(n_hidden_layers + 1):
     model.add(Dense(100, activation = nn_activation))
     model.add(Dense(100, activation = nn_activation))
     model.add(Dense(100, activation = nn_activation))
@@ -234,13 +232,16 @@ def run_sample_nn_structure():
                 train_maes.append(min(history.history['mean_absolute_error']))
 
             toAdd = {'optimizer': get_opt_name(opt), 'activation': act, "test_avg":stat.mean(test_maes), 
-                     "test_best": max(test_maes), "train_avg":stat.mean(train_maes), "train_best": max(train_maes),
+                     "test_best": min(test_maes), "train_avg":stat.mean(train_maes), "train_best": min(train_maes),
                        'run1': test_maes[0], 'run2': test_maes[1], 'run3': test_maes[2]}
             toAdd = pd.DataFrame(toAdd, index=[0])
             display(toAdd)
             data = pd.concat([data, toAdd], ignore_index = True)
 
     display(data)
+
+    print("return_std: " + str(return_std))
+    print("return_mean: " + str(return_mean))
 
     os.system("tensorboard --logdir logs/fit")
 
