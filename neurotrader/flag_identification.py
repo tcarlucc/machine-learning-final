@@ -407,9 +407,8 @@ if __name__ == '__main__':
     # data = pd.read_csv('BTCUSDT3600.csv')
     # data['date'] = data['date'].astype('datetime64[s]')
     # data = data.set_index('date')
-    data = yf.download('MSFT', period="1y", interval='1d')
+    data = yf.download('MSFT', period="max", interval='1d')
     # data.to_csv("stock data")
-    print(data)
     data.rename(columns={'Date': 'date'}, inplace=True)
     data.rename(columns={'Open': 'open'}, inplace=True)
     data.rename(columns={'Close': 'close'}, inplace=True)
@@ -417,7 +416,7 @@ if __name__ == '__main__':
     data.rename(columns={'Low': 'low'}, inplace=True)
     data.rename(columns={'Volume': 'volume'}, inplace=True)
 
-    data = np.log(data)
+    # data = np.log(data)
 
     dat_slice = data['close'].to_numpy()
     #bull_flags, bear_flags, bull_pennants, bear_pennants  = find_flags_pennants_pips(dat_slice, 12)
@@ -428,8 +427,13 @@ if __name__ == '__main__':
     bear_flag_df = pd.DataFrame()
     bear_pennant_df = pd.DataFrame()
 
+    MULT_RETURNS = False
+
     # Assemble data into dataframe
-    hold_mult = 1.0 # Multipler of flag width to hold for after a pattern
+    if MULT_RETURNS:
+        hold_mult = [.25, .5, .75, 1.0, 1.5, 2, 5] # Multipler of flag width to hold for after a pattern
+    else:
+        hold_mult = [1.0]
     for i, flag in enumerate(bull_flags):
         bull_flag_df.loc[i, 'flag_width'] = flag.flag_width
         bull_flag_df.loc[i, 'flag_height'] = flag.flag_height
@@ -438,19 +442,20 @@ if __name__ == '__main__':
         bull_flag_df.loc[i, 'slope'] = flag.resist_slope
         bull_flag_df.loc[i, 'conf-x'] = flag.conf_x
         bull_flag_df.loc[i, 'conf-y'] = flag.conf_y
+        bull_flag_df.loc[i, 'volume'] = data.iloc[flag.conf_x]['volume']
         
         # base, tip, conf
         x = [flag.base_x, flag.tip_x, flag.conf_x]
         y = [flag.base_y, flag.tip_y, flag.conf_y]
         plt.plot(x, y, marker='.', color='red')
-
-
-        hp = int(flag.flag_width * hold_mult)
-        if flag.conf_x + hp >= len(data):
-            bull_flag_df.loc[i, 'return'] = np.nan
-        else:
-            ret = dat_slice[flag.conf_x + hp] - dat_slice[flag.conf_x]
-            bull_flag_df.loc[i, 'return'] = ret 
+    
+        for hold in hold_mult:
+            hp = int(flag.flag_width * hold)
+            if flag.conf_x + hp >= len(data):
+                bull_flag_df.loc[i, 'return_' + str(hold)] = np.nan
+            else:
+                ret = dat_slice[flag.conf_x + hp] - dat_slice[flag.conf_x]
+                bull_flag_df.loc[i, 'return_' + str(hold)] = ret 
 
     for i, flag in enumerate(bear_flags):
         bear_flag_df.loc[i, 'flag_width'] = flag.flag_width
@@ -458,54 +463,64 @@ if __name__ == '__main__':
         bear_flag_df.loc[i, 'pole_width'] = flag.pole_width
         bear_flag_df.loc[i, 'pole_height'] = flag.pole_height
         bear_flag_df.loc[i, 'slope'] = flag.support_slope
+        bear_flag_df.loc[i, 'conf-x'] = flag.conf_x
+        bear_flag_df.loc[i, 'conf-y'] = flag.conf_y
+        bear_flag_df.loc[i, 'volume'] = data.iloc[flag.conf_x]['volume']
 
         # base, tip, conf
         x = [flag.base_x, flag.tip_x, flag.conf_x]
         y = [flag.base_y, flag.tip_y, flag.conf_y]
         plt.plot(x, y, marker='.', color='orange')
 
-        hp = int(flag.flag_width * hold_mult)
-        if flag.conf_x + hp >= len(data):
-            bear_flag_df.loc[i, 'return'] = np.nan
-        else:
-            ret = -1 * (dat_slice[flag.conf_x + hp] - dat_slice[flag.conf_x])
-            bear_flag_df.loc[i, 'return'] = ret 
+        for hold in hold_mult:
+            hp = int(flag.flag_width * hold)
+            if flag.conf_x + hp >= len(data):
+                bear_flag_df.loc[i, 'return_' + str(hold)] = np.nan
+            else:
+                ret = -1 * (dat_slice[flag.conf_x + hp] - dat_slice[flag.conf_x])
+                bear_flag_df.loc[i, 'return_' + str(hold)] = ret 
 
     for i, pennant in enumerate(bull_pennants):
-        bull_pennant_df.loc[i, 'pennant_width'] = pennant.flag_width
-        bull_pennant_df.loc[i, 'pennant_height'] = pennant.flag_height
+        bull_pennant_df.loc[i, 'flag_width'] = pennant.flag_width
+        bull_pennant_df.loc[i, 'flag_height'] = pennant.flag_height
         bull_pennant_df.loc[i, 'pole_width'] = pennant.pole_width
         bull_pennant_df.loc[i, 'pole_height'] = pennant.pole_height
+        bull_pennant_df.loc[i, 'conf-x'] = pennant.conf_x
+        bull_pennant_df.loc[i, 'conf-y'] = pennant.conf_y
 
         # base, tip, conf
         x = [pennant.base_x, pennant.tip_x, pennant.conf_x]
         y = [pennant.base_y, pennant.tip_y, pennant.conf_y]
         plt.plot(x, y, marker='.', color='green')
 
-        hp = int(pennant.flag_width * hold_mult)
-        if flag.conf_x + hp >= len(data):
-            bull_pennant_df.loc[i, 'return'] = np.nan
-        else:
-            ret = dat_slice[pennant.conf_x + hp] - dat_slice[pennant.conf_x]
-            bull_pennant_df.loc[i, 'return'] = ret 
+        for hold in hold_mult:
+            hp = int(pennant.flag_width * hold)
+            if pennant.conf_x + hp >= len(data):
+                bull_pennant_df.loc[i, 'return_' + str(hold)] = np.nan
+            else:
+                ret = dat_slice[pennant.conf_x + hp] - dat_slice[pennant.conf_x]
+                bull_pennant_df.loc[i, 'return_' + str(hold)] = ret 
 
     for i, pennant in enumerate(bear_pennants):
-        bear_pennant_df.loc[i, 'pennant_width'] = pennant.flag_width
-        bear_pennant_df.loc[i, 'pennant_height'] = pennant.flag_height
+        bear_pennant_df.loc[i, 'flag_width'] = pennant.flag_width
+        bear_pennant_df.loc[i, 'flag_height'] = pennant.flag_height
         bear_pennant_df.loc[i, 'pole_width'] = pennant.pole_width
         bear_pennant_df.loc[i, 'pole_height'] = pennant.pole_height
+        bear_pennant_df.loc[i, 'conf-x'] = pennant.conf_x
+        bear_pennant_df.loc[i, 'conf-y'] = pennant.conf_y
 
         # base, tip, conf
         x = [pennant.base_x, pennant.tip_x, pennant.conf_x]
         y = [pennant.base_y, pennant.tip_y, pennant.conf_y]
         plt.plot(x, y, marker='.', color='yellow')
 
-        hp = int(pennant.flag_width * hold_mult)
-        if flag.conf_x + hp >= len(data):
-            bear_pennant_df.loc[i, 'return'] = np.nan
-        else:
-            ret = -1 * (dat_slice[pennant.conf_x + hp] - dat_slice[pennant.conf_x])
-            bear_pennant_df.loc[i, 'return'] = ret 
+        for hold in hold_mult:
+            hp = int(pennant.flag_width * hold)
+            if pennant.conf_x + hp >= len(data):
+                bear_pennant_df.loc[i, 'return_' + str(hold)] = np.nan
+            else:
+                ret =  -1 * (dat_slice[pennant.conf_x + hp] - dat_slice[pennant.conf_x])
+                bear_pennant_df.loc[i, 'return_' + str(hold)] = ret  
 
     
     # all_data = pd.DataFrame()
@@ -513,12 +528,11 @@ if __name__ == '__main__':
     # print(all_data)
 
 
-
-    # bull_flag_df.to_csv("data/bull_flag")
-    # bear_flag_df.to_csv("data/bear_flag")
-    # bull_pennant_df.to_csv("data/bull_pennant")
-    # bear_pennant_df.to_csv("data/bear_pennant")
-    print(bull_flag_df) 
+    bull_flag_df.to_csv("data/new_data/bull_flag")
+    bear_flag_df.to_csv("data/new_data/bear_flag")
+    bull_pennant_df.to_csv("data/new_data/bull_pennant")
+    bear_pennant_df.to_csv("data/new_data/bear_pennant")
+    print(bull_flag_df['conf-x'], bull_flag_df['return_1.0']) 
     plt.xlabel("Time Steps")
     plt.ylabel("Stock Price")
     plt.title("MSFT Stock with Labeled Flags and Pennants")
