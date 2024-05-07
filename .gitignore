@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /data
 /TradingPatternScanner
 /CNN/tradingpatterns/data
 /CNN/tradingpatterns/stock_patterns
 stock_patterns.zip
 .idea
+=======
+microsoft.png
+logs/
+__pycache__/
+>>>>>>> f349079ae8115f286ecbf4dcc56e7f2cf43ad1a9
