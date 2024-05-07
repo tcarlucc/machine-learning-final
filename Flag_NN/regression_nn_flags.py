@@ -76,7 +76,6 @@ def get_and_preprocess_data(bull_path, bear_path, test_size):
     global X_train, X_test, y_train, y_test
     return train_test_split(X, y, test_size=test_size)
 
-
 def neural_network(nn_activation, nn_optimizer):
     model = Sequential()
 
