@@ -34,6 +34,7 @@ high and low values. These are an invaluable resource, and helped inspire this p
 
 
 **tradingpatterns**
+
 "Original work by [Preetam Sharma] is licensed under CC BY-NC-SA 4.0 and can be found at (https://github.com/white07S/TradingPatternScanner)."
 
 Programs found in this folder are pulled from the public repository found above. 
