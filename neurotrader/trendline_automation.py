@@ -177,7 +177,7 @@ data.columns = [x.lower() for x in data.columns]
 data = np.log(data)
 data.head()
 
-''' Plot for trendline changes & close prices
+# Plot for trendline changes & close prices
 
 support_slope = [np.nan] * len(data)
 resist_slope = [np.nan] * len(data)
@@ -192,17 +192,18 @@ for i in range(lookback - 1, len(data)):
 data['support_slope'] = support_slope
 data['resist_slope'] = resist_slope
 
-plt.style.use('dark_background')
-fig, ax1 = plt.subplots(figsize=(30,15))
+plt.style.use('classic')
+fig, ax1 = plt.subplots(figsize=(15, 10))
 ax2 = ax1.twinx()
 data['close'].plot(ax=ax1)
 data['support_slope'].plot(ax=ax2, label='Support Slope', color='green')
 data['resist_slope'].plot(ax=ax2, label='Resistance Slope', color='red')
+plt.title('Support vs Resistance Compared to Original Data')
 plt.legend()
-plt.show()
-'''
+plt.savefig('images/support_and_resistance.png')
 
-''' Plot for candles & two trendlines
+'''
+# Plot for candles & two trendlines
 candles = data.iloc[-30:] # Last 30 candles in data
 support_coefs_c, resist_coefs_c = fit_trendlines_single(candles['close'])
 support_coefs, resist_coefs = fit_trendlines_high_low(candles['high'], candles['low'], candles['close'])
