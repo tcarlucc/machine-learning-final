@@ -9,6 +9,8 @@
 *This project uses algorithms to recognize patterns in stock trends and calculate future trends by testing multiple
 machine learning models*
 
+[Final Project Presentation](https://www.youtube.com/watch?v=vM_542LudH8)
+
 ---
 ### INSTRUCTIONS:
 
